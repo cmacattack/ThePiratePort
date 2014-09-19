@@ -1,0 +1,121 @@
+<html>
+
+    <head>
+        <title>The Pirate Port</title>
+        <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <script type="text/javascript">
+            function performSearch() {
+                var searchTerm = $('#search_term').val();
+                var category = $('#category_select').val();
+
+                var table = $('#results_tbl');
+                $('#results_tbl tbody > tr').remove();
+
+                $.getJSON( "/search", { term:searchTerm, category:category}, function( data ) {             
+                  $.each( data, function( key, val ) {
+                     $(table).append(
+                        $('<tr>').append(
+                            $('<td>').text(val.category.name),
+                            $('<td>').text(val.name),
+                            $('<td>').text(val.subcategory.name),
+                            $('<td>').text(val.uploadDate),
+                            $('<td>').text(val.seeders),
+                            $('<td>').text(val.leechers),
+                            $('<td>').append($('<a>').attr('href', val.link).text('Link')),
+                            $('<td>').append($('<a>').attr('href', val.magnetLink).text('Magnet')),
+                            $('<td>').text(val.size)
+                        )
+                     );
+                  });
+                });
+            }
+
+            $(function() {
+
+            });
+        </script>
+    </head>
+
+    <div id="cntr_results_tbl">
+
+    <input type="text" name="search_term" id="search_term" />
+    <select id="category_select" name="category">
+        <option value="0" selected="selected">All</option>
+        <optgroup label="Audio">
+            <option value="101">Music</option>
+            <option value="102">Audio books</option>
+            <option value="103">Sound clips</option>
+            <option value="104">FLAC</option>
+            <option value="199">Other</option>
+        </optgroup>
+        <optgroup label="Video">
+            <option value="201">Movies</option>
+            <option value="202">Movies DVDR</option>
+            <option value="203">Music videos</option>
+            <option value="204">Movie clips</option>
+            <option value="205">TV shows</option>
+            <option value="206">Handheld</option>
+            <option value="207">HD - Movies</option>
+            <option value="208">HD - TV shows</option>
+            <option value="209">3D</option>
+            <option value="299">Other</option>
+        </optgroup>
+        <optgroup label="Applications">
+            <option value="301">Windows</option>
+            <option value="302">Mac</option>
+            <option value="303">UNIX</option>
+            <option value="304">Handheld</option>
+            <option value="305">IOS (iPad/iPhone)</option>
+            <option value="306">Android</option>
+            <option value="399">Other OS</option>
+        </optgroup>
+        <optgroup label="Games">
+            <option value="401">PC</option>
+            <option value="402">Mac</option>
+            <option value="403">PSx</option>
+            <option value="404">XBOX360</option>
+            <option value="405">Wii</option>
+            <option value="406">Handheld</option>
+            <option value="407">IOS (iPad/iPhone)</option>
+            <option value="408">Android</option>
+            <option value="499">Other</option>
+        </optgroup>
+        <optgroup label="Porn">
+            <option value="501">Movies</option>
+            <option value="502">Movies DVDR</option>
+            <option value="503">Pictures</option>
+            <option value="504">Games</option>
+            <option value="505">HD - Movies</option>
+            <option value="506">Movie clips</option>
+            <option value="599">Other</option>
+        </optgroup>
+        <optgroup label="Other">
+            <option value="601">E-books</option>
+            <option value="602">Comics</option>
+            <option value="603">Pictures</option>
+            <option value="604">Covers</option>
+            <option value="605">Physibles</option>
+            <option value="699">Other</option>
+        </optgroup>
+    </select>
+
+    <input type="button" value="Search" onclick="performSearch();" />
+
+    <table id="results_tbl">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Name</th>
+                <th>Subcategory</th>
+                <th>Uploaded</th>
+                <th>Seeders</th>
+                <th>Leechers</th>
+                <th>Link</th>
+                <th>Magnet</th>
+                <th>Size</th>
+            </tr>
+        </thead>
+        <tbody />
+    </div>
+
+</html>
