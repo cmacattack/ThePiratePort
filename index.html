@@ -58,12 +58,12 @@
                             $('<td>').append($('<span>').attr('class', 'glyphicon glyphicon-arrow-up').text(val.seeders)),
                             $('<td>').append($('<span>').attr('class', 'glyphicon glyphicon-arrow-down').text(val.leechers)),
 
-                            $('<td>').append($('<a>').attr('href', val.link).append($('<img>').attr('alt', 'More Info').attr('src', 'https://cdn1.iconfinder.com/data/icons/windows-8-metro-style/512/link.png').attr('class', 'tbl_icon'))),
+                            $('<td>').append($('<a>').attr('href', val.link).append($('<img>').attr('alt', 'More Info').attr('src', '/images/link.png').attr('class', 'tbl_icon'))),
 
-                            $('<td>').append($('<a>').attr('href', val.magnetLink).append($('<img>').attr('alt', 'Download Magnet Link').attr('src', 'http://www.openoffice.org/distribution/p2p/img/icon-mag.jpg').attr('class', 'tbl_icon'))),
+                            $('<td>').append($('<a>').attr('href', val.magnetLink).append($('<img>').attr('alt', 'Download Magnet Link').attr('src', '/images/magnet.png').attr('class', 'tbl_icon'))),
 
 
-                            $('<td>').append($('<a>').attr('href', '#').click(function() { sendToTransmission(val.magnetLink) }).append($('<img>').attr('alt', 'Send To Transmission').attr('src', 'http://files.softicons.com/download/application-icons/transmission-icon-by-iiro-jappinen/png/32x32/Transmission.png').attr('class', 'tbl_icon')))   
+                            $('<td>').append($('<a>').attr('href', '#').click(function() { sendToTransmission(val.magnetLink) }).append($('<img>').attr('alt', 'Send To Transmission').attr('src', '/images/transmission.png').attr('class', 'tbl_icon')))   
 
                             // $('<td>').append($('<a>').attr('href', val.torrentLink).append($('<img>').attr('alt', 'Download Torrent File').attr('src', 'http://www.apkdad.com/wp-content/uploads/2012/12/BitTorrent-Beta-Torrent-App-Icon1.png').attr('class', 'tbl_icon'))),                            
                         )
