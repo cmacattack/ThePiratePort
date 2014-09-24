@@ -41,15 +41,17 @@ app.get('/download_transmission', function(req, res) {
 	console.log('Adding to transmission: ' + link);
 
 	var command = spawn(__dirname + '/add_to_transmission.sh', [ link || '' ]);
+	var outputStr = '';
 	var output  = [];
 
 	command.stdout.on('data', function(chunk) {
 		output.push(chunk);
+		outputStr = outputStr + chunk.toString();
 	}); 
 
 	command.on('close', function(code) {
 	if (code === 0)
-	  res.send(Buffer.concat(output));
+	  res.send(outputStr);
 	else
 	  res.send(500); // when the script fails, generate a Server Error HTTP response
 	});
