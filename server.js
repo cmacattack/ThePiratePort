@@ -24,10 +24,13 @@ app.get('/', function(req, res){
 app.get('/search', function(req, res){
 	var search_cat = req.param("category");
 	var search_term = req.param("term");
+	var sort_field = req.param("sortField");
+	var page = req.param("page");
 
 	tpb.search(search_term, {
 	    category: search_cat,
-	    orderBy: '7'
+	    orderBy: sort_field,
+	    page: page
 	}).then(function(results){
 	    res.writeHead(200, { 'Content-Type': 'application/json' });
 		res.end(JSON.stringify(results), 'utf-8');

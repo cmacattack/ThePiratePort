@@ -21,6 +21,15 @@
             .tbl_icon {
                 height:20px;
             }
+
+            .activeSort, .selectedPage {
+                font-weight:bold;
+                color:Red;
+            }
+
+            th > span{
+                cursor:pointer;
+            }
         </style>
 
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -30,15 +39,46 @@
         <![endif]-->
 
         <script type="text/javascript">
+            SortEnum = {
+                ASCENDING:0,
+                DESCENDING:1
+            }
+
+            var sortOrder = SortEnum.DESCENDING;
+            var sortField = 7;
+            var page = 1;
+
+            function SetPage(pageIdx)
+            {
+                page = pageIdx;
+                performSearch();
+            }
+
+            function SetSortField(optDescending, optAscending) {
+                // if user clicks the same sort field that table is currently sorted by,
+                // we will change the sort order (i.e. from descending to ascending...)
+                if (sortField == optDescending || sortField == optAscending)
+                {
+                    sortOrder = (sortOrder == SortEnum.ASCENDING) ? SortEnum.DESCENDING : SortEnum.ASCENDING;
+                }
+
+                sortField = (sortOrder == SortEnum.ASCENDING) ? optAscending : optDescending;
+
+                page = 1;
+                $('.selectedPage').removeClass('selectedPage');
+                
+                performSearch();
+            }
+
             function sendToTransmission (magnetLink) {
                 var url = '/download_transmission?link=' + encodeURIComponent(magnetLink);
                 $.get(url, function(data) {
-		    var status = $.parseJSON(data).result;
-		    if ('success' === status)
-		  	alert('Successfully Added Torrent to Transmission!');
-		    else
-			alert('Error: Could Not Add Torrent to Transmission!');
-		});
+                    var status = $.parseJSON(data).result;
+                    if ('success' === status)
+                    alert('Successfully Added Torrent to Transmission!');
+                    else
+                    alert('Error: Could Not Add Torrent to Transmission!');
+                });
             }
 
             function performSearch() {
@@ -47,12 +87,12 @@
 
                 var table = $('#results_tbl');
                 var table_data = $('#results_tbl tbody');
-                $(table_data).remove();
+
+
+                $.getJSON( "/search", { term:searchTerm, category:category, sortField:sortField, page:page }, function( data ) {                           $(table_data).remove();
                 
                 table_data = $('<tbody>');
-                $(table).append(table_data);
-
-                $.getJSON( "/search", { term:searchTerm, category:category}, function( data ) {             
+                $(table).append(table_data);  
                   $.each( data, function( key, val ) {
                      $(table_data).append(
                         $('<tr>').append(
@@ -69,7 +109,7 @@
                             $('<td>').append($('<a>').attr('href', val.magnetLink).append($('<img>').attr('alt', 'Download Magnet Link').attr('src', '/images/magnet.png').attr('class', 'tbl_icon'))),
 
 
-                            $('<td>').append($('<a>').attr('href', '#').click(function() { sendToTransmission(val.magnetLink) }).append($('<img>').attr('alt', 'Send To Transmission').attr('src', '/images/transmission.png').attr('class', 'tbl_icon')))   
+                            $('<td>').append($('<a>').attr('href', '#').click(function() { sendToTransmission(val.magnetLink); return false; }).append($('<img>').attr('alt', 'Send To Transmission').attr('src', '/images/transmission.png').attr('class', 'tbl_icon')))   
 
                             // $('<td>').append($('<a>').attr('href', val.torrentLink).append($('<img>').attr('alt', 'Download Torrent File').attr('src', 'http://www.apkdad.com/wp-content/uploads/2012/12/BitTorrent-Beta-Torrent-App-Icon1.png').attr('class', 'tbl_icon'))),                            
                         )
@@ -79,16 +119,26 @@
             }
 
             $(function() {
+                var $paging_div = $('#paging');
 
+                for(i=1; i<=10; i++) {
+                    $paging_div.append($('<a>').attr('href', '#').text(i.toString()).click(function() {
+                        SetPage(i);
+                        $('.selectedPage').removeClass('selectedPage');
+                        $(this).addClass('selectedPage');
+                        return false;
+                    }).css('margin-left', '50px'));
+                }
             });
         </script>
     </head>
 
     <body>
         <div class="container">
-<div class="page-header">
-  <h1>The Pirate Port</h1>
-</div>
+            <div class="page-header">
+              <h1>The Pirate Port</h1>
+            </div>
+
             <form onsubmit="performSearch();return false;" role="search">
                 <div class="input-group">
                     <input type="text" class="form-control" name="search_term" id="search_term" placeholder="Search" name="q">
@@ -163,17 +213,20 @@
                 <table class="table table-striped table-condensed table-hover" id="results_tbl">
                     <thead>
                         <tr>
-                            <th colspan="2">Category</th>
-                            <th>Name</th>
-                            <th>Uploaded</th>
-                            <th>Size</th>
-                            <th colspan="2">Ratio</th>
+                            <th colspan="2"><span>Category</span></th>
+                            <th><span onclick="SetSortField(1,2);$('.activeSort').removeClass('activeSort');$(this).addClass('activeSort');">Name</span></th>
+                            <th><span onclick="SetSortField(3,4);$('.activeSort').removeClass('activeSort');$(this).addClass('activeSort');">Uploaded</span></th>
+                            <th><span onclick="SetSortField(5,6);$('.activeSort').removeClass('activeSort');$(this).addClass('activeSort');">Size</span></th>
+                            <th colspan="2"><span class="activeSort" onclick="SetSortField(7,8);$('.activeSort').removeClass('activeSort');$(this).addClass('activeSort');">Ratio</span></th>
                             <th colspan="3">Options</th>
                         </tr>
                     </thead>
                     <tbody />
                 </table>
             </div>
+
+            <div id="paging" />
+
     </div>
     </body>
 </html>
