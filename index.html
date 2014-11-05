@@ -22,10 +22,22 @@
                 height:20px;
             }
 
+	    div #paging {
+		margin-left:auto;
+		margin-right:auto;
+		width:100%;
+		text-align:center;
+	    }
+
             .activeSort, .selectedPage {
                 font-weight:bold;
                 color:Red;
             }
+
+	    table.table {
+		margin-top:30px;
+		margin-bottom:30px;
+	    }
 
             th > span{
                 cursor:pointer;
@@ -46,10 +58,9 @@
 
             var sortOrder = SortEnum.DESCENDING;
             var sortField = 7;
-            var page = 1;
+            var page = 0;
 
-            function SetPage(pageIdx)
-            {
+            function SetPage(pageIdx) {
                 page = pageIdx;
                 performSearch();
             }
@@ -57,17 +68,14 @@
             function SetSortField(optDescending, optAscending) {
                 // if user clicks the same sort field that table is currently sorted by,
                 // we will change the sort order (i.e. from descending to ascending...)
-                if (sortField == optDescending || sortField == optAscending)
-                {
+                if (sortField == optDescending || sortField == optAscending) {
                     sortOrder = (sortOrder == SortEnum.ASCENDING) ? SortEnum.DESCENDING : SortEnum.ASCENDING;
                 }
 
                 sortField = (sortOrder == SortEnum.ASCENDING) ? optAscending : optDescending;
 
-                page = 1;
                 $('.selectedPage').removeClass('selectedPage');
-                
-                performSearch();
+                SetPage(0);
             }
 
             function sendToTransmission (magnetLink) {
@@ -75,9 +83,9 @@
                 $.get(url, function(data) {
                     var status = $.parseJSON(data).result;
                     if ('success' === status)
-                    alert('Successfully Added Torrent to Transmission!');
+                        alert('Successfully Added Torrent to Transmission!');
                     else
-                    alert('Error: Could Not Add Torrent to Transmission!');
+                        alert('Error: Could Not Add Torrent to Transmission!');
                 });
             }
 
@@ -87,7 +95,6 @@
 
                 var table = $('#results_tbl');
                 var table_data = $('#results_tbl tbody');
-
 
                 $.getJSON( "/search", { term:searchTerm, category:category, sortField:sortField, page:page }, function( data ) {                           $(table_data).remove();
                 
@@ -122,32 +129,42 @@
                 var $paging_div = $('#paging');
 
                 for(i=1; i<=10; i++) {
-                    $paging_div.append($('<a>').attr('href', '#').text(i.toString()).click(function() {
-                        SetPage(i);
-                        $('.selectedPage').removeClass('selectedPage');
-                        $(this).addClass('selectedPage');
-                        return false;
-                    }).css('margin-left', '50px'));
-                }
+                  (function(n) {
+                        $paging_div.append($('<a>').attr('href', '#').text(n.toString()).click(function() {
+			    SetPage(n - 1);
+                            $('.selectedPage').removeClass('selectedPage');
+                            $(this).addClass('selectedPage');
+                            return false;
+                        }).css('margin-left', '50px'));
+		  })(i);
+		}
             });
         </script>
     </head>
 
     <body>
         <div class="container">
-            <div class="page-header">
+	    <div style="float:right">
+	      <a href="https://transmission.colin-mcdonald.com/" target="_blank">Transmission Interface >></a>
+	    </div>
+            
+	    <div class="page-header">
               <h1>The Pirate Port</h1>
             </div>
 
             <form onsubmit="performSearch();return false;" role="search">
-                <div class="input-group">
+                <div class="row">
+		<div class="col-md-8">
+		<div class="input-group">
                     <input type="text" class="form-control" name="search_term" id="search_term" placeholder="Search" name="q">
                     <div class="input-group-btn">
                         <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
                     </div>
                 </div>
+		</div>
 
-                <select style="width:50%" class="form-control" id="category_select" name="category">
+		<div class="col-md-4">
+                <select class="form-control" id="category_select" name="category">
                     <option value="0" selected="selected">All</option>
                     <optgroup label="Audio">
                         <option value="101">Music</option>
@@ -206,7 +223,8 @@
                         <option value="699">Other</option>
                     </optgroup>
                 </select>           
-
+		</div>
+		</div>
             </form>
 
             <div class="table-responsive">
