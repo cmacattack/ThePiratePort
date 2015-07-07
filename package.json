@@ -1,0 +1,25 @@
+{
+  "name": "thepirateport",
+  "version": "1.0.0",
+  "description": "Web interface for browsing The Pirate Bay via a third-party node module...no ads!",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cmacattack/ThePiratePort.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cmacattack/ThePiratePort/issues"
+  },
+  "homepage": "https://github.com/cmacattack/ThePiratePort",
+  "dependencies": {
+    "body-parser": "^1.13.2",
+    "express": "^4.13.1",
+    "thepiratebay": "^0.2.2"
+  }
+}

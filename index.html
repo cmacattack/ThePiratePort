@@ -6,14 +6,17 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="">
         <meta name="author" content="">
+        
         <title>The Pirate Port</title>
+        
         <link rel="icon" href="../../favicon.ico">
         <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" />
+        
         <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
         <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
         <style type="text/css">
-/*            fix bootstrap responsive tables for firefox*/
+            /* fix bootstrap responsive tables for firefox*/
             @-moz-document url-prefix() {
               fieldset { display: table-cell; }
             }
@@ -22,22 +25,22 @@
                 height:20px;
             }
 
-	    div #paging {
-		margin-left:auto;
-		margin-right:auto;
-		width:100%;
-		text-align:center;
-	    }
+            div #paging {
+                margin-left:auto;
+                margin-right:auto;
+                width:100%;
+                text-align:center;
+            }
 
             .activeSort, .selectedPage {
                 font-weight:bold;
                 color:Red;
             }
 
-	    table.table {
-		margin-top:30px;
-		margin-bottom:30px;
-	    }
+            table.table {
+                margin-top:30px;
+                margin-bottom:30px;
+            }
 
             th > span{
                 cursor:pointer;
@@ -62,7 +65,7 @@
 
             function SetPage(pageIdx) {
                 page = pageIdx;
-                performSearch();
+                performSearch(false);
             }
 
             function SetSortField(optDescending, optAscending) {
@@ -89,39 +92,51 @@
                 });
             }
 
-            function performSearch() {
+            function performSearch(top_torrents) {
                 var searchTerm = $('#search_term').val();
                 var category = $('#category_select').val();
 
                 var table = $('#results_tbl');
                 var table_data = $('#results_tbl tbody');
 
-                $.getJSON( "/search", { term:searchTerm, category:category, sortField:sortField, page:page }, function( data ) {                           $(table_data).remove();
+                var url = '/search';
+
+                $('#paging').show();
+
+                if (top_torrents) {
+                    $('#search_term').val('Top 100 Torrents');
+                    url = '/top_torrents';
+                    $('#paging').hide();
+                } 
+
+                $.getJSON(url, { term:searchTerm, category:category, sortField:sortField, page:page }, function( data ) {                           
+                    $('#results_tbl tbody').remove();
                 
-                table_data = $('<tbody>');
-                $(table).append(table_data);  
-                  $.each( data, function( key, val ) {
-                     $(table_data).append(
-                        $('<tr>').append(
-                            $('<td>').text(val.category.name),
-                            $('<td>').text(val.subcategory.name),
-                            $('<td>').text(val.name),
-                            $('<td>').text(val.uploadDate),
-                            $('<td>').text(val.size).css('text-align', 'right'),
-                            $('<td>').append($('<span>').attr('class', 'glyphicon glyphicon-arrow-up').text(val.seeders)),
-                            $('<td>').append($('<span>').attr('class', 'glyphicon glyphicon-arrow-down').text(val.leechers)),
+                    var table_data = $('<tbody>');
+                    $(table).append(table_data);  
 
-                            $('<td>').append($('<a>').attr('href', val.link).append($('<img>').attr('alt', 'More Info').attr('src', '/images/link.png').attr('class', 'tbl_icon'))),
+                      $.each( data, function( key, val ) {
+                         $(table_data).append(
+                            $('<tr>').append(
+                                $('<td>').text(val.category.name),
+                                $('<td>').text(val.subcategory.name),
+                                $('<td>').text(val.name),
+                                $('<td>').text(val.uploadDate),
+                                $('<td>').text(val.size).css('text-align', 'right'),
+                                $('<td>').append($('<span>').attr('class', 'glyphicon glyphicon-arrow-up').text(val.seeders)),
+                                $('<td>').append($('<span>').attr('class', 'glyphicon glyphicon-arrow-down').text(val.leechers)),
 
-                            $('<td>').append($('<a>').attr('href', val.magnetLink).append($('<img>').attr('alt', 'Download Magnet Link').attr('src', '/images/magnet.png').attr('class', 'tbl_icon'))),
+                                $('<td>').append($('<a>').attr('href', val.link).append($('<img>').attr('alt', 'More Info').attr('src', '/images/link.png').attr('class', 'tbl_icon'))),
+
+                                $('<td>').append($('<a>').attr('href', val.magnetLink).append($('<img>').attr('alt', 'Download Magnet Link').attr('src', '/images/magnet.png').attr('class', 'tbl_icon'))),
 
 
-                            $('<td>').append($('<a>').attr('href', '#').click(function() { sendToTransmission(val.magnetLink); return false; }).append($('<img>').attr('alt', 'Send To Transmission').attr('src', '/images/transmission.png').attr('class', 'tbl_icon')))   
+                                $('<td>').append($('<a>').attr('href', '#').click(function() { sendToTransmission(val.magnetLink); return false; }).append($('<img>').attr('alt', 'Send To Transmission').attr('src', '/images/transmission.png').attr('class', 'tbl_icon')))   
 
-                            // $('<td>').append($('<a>').attr('href', val.torrentLink).append($('<img>').attr('alt', 'Download Torrent File').attr('src', 'http://www.apkdad.com/wp-content/uploads/2012/12/BitTorrent-Beta-Torrent-App-Icon1.png').attr('class', 'tbl_icon'))),                            
-                        )
-                     );
-                  });
+                                // $('<td>').append($('<a>').attr('href', val.torrentLink).append($('<img>').attr('alt', 'Download Torrent File').attr('src', 'http://www.apkdad.com/wp-content/uploads/2012/12/BitTorrent-Beta-Torrent-App-Icon1.png').attr('class', 'tbl_icon'))),                            
+                            )
+                        );
+                    });
                 });
             }
 
@@ -129,122 +144,136 @@
                 var $paging_div = $('#paging');
 
                 for(i=1; i<=10; i++) {
-                  (function(n) {
-                        $paging_div.append($('<a>').attr('href', '#').text(n.toString()).click(function() {
-			    SetPage(n - 1);
-                            $('.selectedPage').removeClass('selectedPage');
-                            $(this).addClass('selectedPage');
-                            return false;
-                        }).css('margin-left', '50px'));
-		  })(i);
-		}
+                    (function(n) {
+                        $paging_div.append($('<a>')
+                            .attr('href', '#')
+                            .text(n.toString())
+                            .click(function() {
+                                SetPage(n - 1);
+                                $('.selectedPage').removeClass('selectedPage');
+                                $(this).addClass('selectedPage');
+                                return false;
+                            }).css('margin-left', '50px'));
+                    })(i);
+                }
             });
         </script>
     </head>
 
     <body>
         <div class="container">
-	    <div style="float:right">
-	      <a href="https://transmission.colin-mcdonald.com/" target="_blank">Transmission Interface >></a>
-	    </div>
+        <div style="float:right">
+          <a href="//transmission.colin-mcdonald.com/" target="_blank">Transmission Interface >></a>
+        </div>
             
-	    <div class="page-header">
+        <div class="page-header">
               <h1>The Pirate Port</h1>
             </div>
 
-            <form onsubmit="performSearch();return false;" role="search">
+            <form onsubmit="performSearch(false);return false;" role="search">
                 <div class="row">
-		<div class="col-md-8">
-		<div class="input-group">
-                    <input type="text" class="form-control" name="search_term" id="search_term" placeholder="Search" name="q">
-                    <div class="input-group-btn">
-                        <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+                    <div class="col-md-8">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="search_term" id="search_term" placeholder="Search">
+                            <div class="input-group-btn">
+                                <button class="btn btn-info" type="button" onclick="performSearch(true);return false;">Top 100</button>
+                                <button class="btn btn-default" type="button" onclick="performSearch(false);return false;"><i class="glyphicon glyphicon-search"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <select class="form-control" id="category_select" name="category">
+                            <option value="0" selected="selected">All</option>
+                            <optgroup label="Audio">
+                                <option value="101">Music</option>
+                                <option value="102">Audio books</option>
+                                <option value="103">Sound clips</option>
+                                <option value="104">FLAC</option>
+                                <option value="199">Other</option>
+                            </optgroup>
+                            <optgroup label="Video">
+                                <option value="201">Movies</option>
+                                <option value="202">Movies DVDR</option>
+                                <option value="203">Music videos</option>
+                                <option value="204">Movie clips</option>
+                                <option value="205">TV shows</option>
+                                <option value="206">Handheld</option>
+                                <option value="207">HD - Movies</option>
+                                <option value="208">HD - TV shows</option>
+                                <option value="209">3D</option>
+                                <option value="299">Other</option>
+                            </optgroup>
+                            <optgroup label="Applications">
+                                <option value="301">Windows</option>
+                                <option value="302">Mac</option>
+                                <option value="303">UNIX</option>
+                                <option value="304">Handheld</option>
+                                <option value="305">IOS (iPad/iPhone)</option>
+                                <option value="306">Android</option>
+                                <option value="399">Other OS</option>
+                            </optgroup>
+                            <optgroup label="Games">
+                                <option value="401">PC</option>
+                                <option value="402">Mac</option>
+                                <option value="403">PSx</option>
+                                <option value="404">XBOX360</option>
+                                <option value="405">Wii</option>
+                                <option value="406">Handheld</option>
+                                <option value="407">IOS (iPad/iPhone)</option>
+                                <option value="408">Android</option>
+                                <option value="499">Other</option>
+                            </optgroup>
+                            <optgroup label="Porn">
+                                <option value="501">Movies</option>
+                                <option value="502">Movies DVDR</option>
+                                <option value="503">Pictures</option>
+                                <option value="504">Games</option>
+                                <option value="505">HD - Movies</option>
+                                <option value="506">Movie clips</option>
+                                <option value="599">Other</option>
+                            </optgroup>
+                            <optgroup label="Other">
+                                <option value="601">E-books</option>
+                                <option value="602">Comics</option>
+                                <option value="603">Pictures</option>
+                                <option value="604">Covers</option>
+                                <option value="605">Physibles</option>
+                                <option value="699">Other</option>
+                            </optgroup>
+                        </select>           
                     </div>
                 </div>
-		</div>
-
-		<div class="col-md-4">
-                <select class="form-control" id="category_select" name="category">
-                    <option value="0" selected="selected">All</option>
-                    <optgroup label="Audio">
-                        <option value="101">Music</option>
-                        <option value="102">Audio books</option>
-                        <option value="103">Sound clips</option>
-                        <option value="104">FLAC</option>
-                        <option value="199">Other</option>
-                    </optgroup>
-                    <optgroup label="Video">
-                        <option value="201">Movies</option>
-                        <option value="202">Movies DVDR</option>
-                        <option value="203">Music videos</option>
-                        <option value="204">Movie clips</option>
-                        <option value="205">TV shows</option>
-                        <option value="206">Handheld</option>
-                        <option value="207">HD - Movies</option>
-                        <option value="208">HD - TV shows</option>
-                        <option value="209">3D</option>
-                        <option value="299">Other</option>
-                    </optgroup>
-                    <optgroup label="Applications">
-                        <option value="301">Windows</option>
-                        <option value="302">Mac</option>
-                        <option value="303">UNIX</option>
-                        <option value="304">Handheld</option>
-                        <option value="305">IOS (iPad/iPhone)</option>
-                        <option value="306">Android</option>
-                        <option value="399">Other OS</option>
-                    </optgroup>
-                    <optgroup label="Games">
-                        <option value="401">PC</option>
-                        <option value="402">Mac</option>
-                        <option value="403">PSx</option>
-                        <option value="404">XBOX360</option>
-                        <option value="405">Wii</option>
-                        <option value="406">Handheld</option>
-                        <option value="407">IOS (iPad/iPhone)</option>
-                        <option value="408">Android</option>
-                        <option value="499">Other</option>
-                    </optgroup>
-                    <optgroup label="Porn">
-                        <option value="501">Movies</option>
-                        <option value="502">Movies DVDR</option>
-                        <option value="503">Pictures</option>
-                        <option value="504">Games</option>
-                        <option value="505">HD - Movies</option>
-                        <option value="506">Movie clips</option>
-                        <option value="599">Other</option>
-                    </optgroup>
-                    <optgroup label="Other">
-                        <option value="601">E-books</option>
-                        <option value="602">Comics</option>
-                        <option value="603">Pictures</option>
-                        <option value="604">Covers</option>
-                        <option value="605">Physibles</option>
-                        <option value="699">Other</option>
-                    </optgroup>
-                </select>           
-		</div>
-		</div>
             </form>
 
             <div class="table-responsive">
                 <table class="table table-striped table-condensed table-hover" id="results_tbl">
                     <thead>
                         <tr>
-                            <th colspan="2"><span>Category</span></th>
-                            <th><span onclick="SetSortField(1,2);$('.activeSort').removeClass('activeSort');$(this).addClass('activeSort');">Name</span></th>
-                            <th><span onclick="SetSortField(3,4);$('.activeSort').removeClass('activeSort');$(this).addClass('activeSort');">Uploaded</span></th>
-                            <th><span onclick="SetSortField(5,6);$('.activeSort').removeClass('activeSort');$(this).addClass('activeSort');">Size</span></th>
-                            <th colspan="2"><span class="activeSort" onclick="SetSortField(7,8);$('.activeSort').removeClass('activeSort');$(this).addClass('activeSort');">Ratio</span></th>
+                            <th colspan="2">
+                                <span>Category</span>
+                            </th>
+                            <th>
+                                <span onclick="SetSortField(1,2);$('.activeSort').removeClass('activeSort');$(this).addClass('activeSort');">Name</span>
+                            </th>
+                            <th>
+                                <span onclick="SetSortField(3,4);$('.activeSort').removeClass('activeSort');$(this).addClass('activeSort');">Uploaded</span>
+                            </th>
+                            <th>
+                                <span onclick="SetSortField(5,6);$('.activeSort').removeClass('activeSort');$(this).addClass('activeSort');">Size</span>
+                            </th>
+                            <th colspan="2">
+                                <span class="activeSort" onclick="SetSortField(7,8);$('.activeSort').removeClass('activeSort');$(this).addClass('activeSort');">Ratio</span>
+                            </th>
                             <th colspan="3">Options</th>
                         </tr>
                     </thead>
-                    <tbody />
+                    <tbody></tbody>
                 </table>
             </div>
 
-            <div id="paging" />
+            <div id="paging"></div>
 
-    </div>
+        </div>
     </body>
 </html>
