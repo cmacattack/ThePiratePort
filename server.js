@@ -6,7 +6,7 @@ var spawn   = require('child_process').spawn
 var app = express()
 
 app.get('/', function(req, res){
-    fs.readFile('./index.html', function(error, content) {
+    fs.readFile(__dirname + '/index.html', function(error, content) {
         if (error) {
             res.writeHead(500)
             res.end()
